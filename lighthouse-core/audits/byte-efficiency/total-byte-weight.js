@@ -8,11 +8,6 @@
 const ByteEfficiencyAudit = require('./byte-efficiency-audit');
 const Util = require('../../report/v2/renderer/util');
 
-// Parameters for log-normal CDF scoring. See https://www.desmos.com/calculator/gpmjeykbwr
-// ~75th and ~90th percentiles http://httparchive.org/interesting.php?a=All&l=Feb%201%202017&s=All#bytesTotal
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 2500 * 1024;
-const SCORING_MEDIAN = 4000 * 1024;
-
 class TotalByteWeight extends ByteEfficiencyAudit {
   /**
    * @return {!AuditMeta}
@@ -33,9 +28,10 @@ class TotalByteWeight extends ByteEfficiencyAudit {
 
   /**
    * @param {!Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {!Promise<!AuditResult>}
    */
-  static audit(artifacts) {
+  static audit(artifacts, context) {
     const devtoolsLogs = artifacts.devtoolsLogs[ByteEfficiencyAudit.DEFAULT_PASS];
     return Promise.all([
       artifacts.requestNetworkRecords(devtoolsLogs),
@@ -60,14 +56,10 @@ class TotalByteWeight extends ByteEfficiencyAudit {
       const totalCompletedRequests = results.length;
       results = results.sort((itemA, itemB) => itemB.totalBytes - itemA.totalBytes).slice(0, 10);
 
-      // Use the CDF of a log-normal distribution for scoring.
-      //   <= 1600KB: score≈1
-      //   4000KB: score=0.50
-      //   >= 9000KB: score≈0
       const score = ByteEfficiencyAudit.computeLogNormalScore(
         totalBytes,
-        SCORING_POINT_OF_DIMINISHING_RETURNS,
-        SCORING_MEDIAN
+        context.options.scorePODR,
+        context.options.scoreMedian
       );
 
       const headings = [

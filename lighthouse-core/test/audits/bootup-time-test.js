@@ -10,6 +10,7 @@ const BootupTime = require('../../audits/bootup-time.js');
 const Runner = require('../../runner.js');
 const assert = require('assert');
 const {groupIdToName} = require('../../lib/task-groups');
+const options = require('../../config/constants').defaultAuditOptions['bootup-time'];
 
 const acceptableTrace = require('../fixtures/traces/progressive-app-m60.json');
 const errorTrace = require('../fixtures/traces/airhorner_no_fcp.json');
@@ -22,7 +23,7 @@ describe('Performance: bootup-time audit', () => {
       },
     }, Runner.instantiateComputedArtifacts());
 
-    return BootupTime.audit(artifacts).then(output => {
+    return BootupTime.audit(artifacts, {options}).then(output => {
       assert.equal(output.details.items.length, 4);
       assert.equal(output.score, 1);
       assert.equal(Math.round(output.rawValue), 176);
@@ -51,7 +52,7 @@ describe('Performance: bootup-time audit', () => {
       },
     }, Runner.instantiateComputedArtifacts());
 
-    return BootupTime.audit(artifacts)
+    return BootupTime.audit(artifacts, {options})
       .then(output => {
         assert.equal(output.details.items.length, 0);
         assert.equal(output.score, 1);

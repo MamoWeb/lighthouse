@@ -8,11 +8,6 @@
 const Audit = require('./audit');
 const Util = require('../report/v2/renderer/util.js');
 
-// Parameters (in ms) for log-normal CDF scoring. To see the curve:
-//   https://www.desmos.com/calculator/rjp0lbit8y
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 1700;
-const SCORING_MEDIAN = 10000;
-
 class FirstInteractiveMetric extends Audit {
   /**
    * @return {!AuditMeta}
@@ -34,17 +29,18 @@ class FirstInteractiveMetric extends Audit {
    * @see https://docs.google.com/document/d/1GGiI9-7KeY3TPqS3YT271upUVimo-XiL5mwWorDUD4c/edit#
    *
    * @param {!Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {!Promise<!AuditResult>}
    */
-  static audit(artifacts) {
+  static audit(artifacts, context) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     return artifacts.requestFirstInteractive(trace)
       .then(firstInteractive => {
         return {
           score: Audit.computeLogNormalScore(
             firstInteractive.timeInMs,
-            SCORING_POINT_OF_DIMINISHING_RETURNS,
-            SCORING_MEDIAN
+            context.options.scorePODR,
+            context.options.scoreMedian
           ),
           rawValue: firstInteractive.timeInMs,
           displayValue: Util.formatMilliseconds(firstInteractive.timeInMs),

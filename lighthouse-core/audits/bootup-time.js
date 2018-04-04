@@ -11,11 +11,6 @@ const Util = require('../report/v2/renderer/util');
 const {groupIdToName, taskToGroup} = require('../lib/task-groups');
 const THRESHOLD_IN_MS = 10;
 
-// Parameters for log-normal CDF scoring. See https://www.desmos.com/calculator/rkphawothk
-// <500ms ~= 100, >2s is yellow, >3.5s is red
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 600;
-const SCORING_MEDIAN = 3500;
-
 class BootupTime extends Audit {
   /**
    * @return {!AuditMeta}
@@ -65,9 +60,10 @@ class BootupTime extends Audit {
 
   /**
    * @param {!Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {!AuditResult}
    */
-  static audit(artifacts) {
+  static audit(artifacts, context) {
     const trace = artifacts.traces[BootupTime.DEFAULT_PASS];
     return artifacts.requestDevtoolsTimelineModel(trace).then(devtoolsTimelineModel => {
       const executionTimings = BootupTime.getExecutionTimingsByURL(devtoolsTimelineModel);
@@ -106,8 +102,8 @@ class BootupTime extends Audit {
 
       const score = Audit.computeLogNormalScore(
         totalBootupTime,
-        SCORING_POINT_OF_DIMINISHING_RETURNS,
-        SCORING_MEDIAN
+        context.options.scorePODR,
+        context.options.scoreMedian
       );
 
       return {

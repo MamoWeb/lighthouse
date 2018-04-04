@@ -15,11 +15,6 @@ const Util = require('../report/v2/renderer/util');
 // We group all trace events into groups to show a highlevel breakdown of the page
 const {taskToGroup} = require('../lib/task-groups');
 
-// Parameters for log-normal CDF scoring. See https://www.desmos.com/calculator/s2eqcifkum
-// <1s ~= 100, >3s is yellow, >4s is red
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 1500;
-const SCORING_MEDIAN = 4000;
-
 class MainThreadWorkBreakdown extends Audit {
   /**
    * @return {!AuditMeta}
@@ -53,9 +48,10 @@ class MainThreadWorkBreakdown extends Audit {
 
   /**
    * @param {!Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {!AuditResult}
    */
-  static audit(artifacts) {
+  static audit(artifacts, context) {
     const trace = artifacts.traces[MainThreadWorkBreakdown.DEFAULT_PASS];
 
     return artifacts.requestDevtoolsTimelineModel(trace)
@@ -92,8 +88,8 @@ class MainThreadWorkBreakdown extends Audit {
 
         const score = Audit.computeLogNormalScore(
           totalExecutionTime,
-          SCORING_POINT_OF_DIMINISHING_RETURNS,
-          SCORING_MEDIAN
+          context.options.scorePODR,
+          context.options.scoreMedian
         );
 
         return {

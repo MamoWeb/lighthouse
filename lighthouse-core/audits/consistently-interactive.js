@@ -11,11 +11,6 @@ const NetworkRecorder = require('../lib/network-recorder');
 const TracingProcessor = require('../lib/traces/tracing-processor');
 const LHError = require('../lib/errors');
 
-// Parameters (in ms) for log-normal CDF scoring. To see the curve:
-//   https://www.desmos.com/calculator/uti67afozh
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 1700;
-const SCORING_MEDIAN = 10000;
-
 const REQUIRED_QUIET_WINDOW = 5000;
 const ALLOWED_CONCURRENT_REQUESTS = 2;
 
@@ -155,9 +150,10 @@ class ConsistentlyInteractiveMetric extends Audit {
 
   /**
    * @param {!Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {!Promise<!AuditResult>}
    */
-  static audit(artifacts) {
+  static audit(artifacts, context) {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS];
     const computedArtifacts = [
@@ -192,8 +188,8 @@ class ConsistentlyInteractiveMetric extends Audit {
         return {
           score: Audit.computeLogNormalScore(
             timeInMs,
-            SCORING_POINT_OF_DIMINISHING_RETURNS,
-            SCORING_MEDIAN
+            context.options.scorePODR,
+            context.options.scoreMedian
           ),
           rawValue: timeInMs,
           displayValue: Util.formatMilliseconds(timeInMs),

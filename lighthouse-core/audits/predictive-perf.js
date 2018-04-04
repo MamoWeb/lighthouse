@@ -7,11 +7,7 @@
 
 const Audit = require('./audit');
 const Util = require('../report/v2/renderer/util');
-
-// Parameters (in ms) for log-normal CDF scoring. To see the curve:
-//   https://www.desmos.com/calculator/rjp0lbit8y
-const SCORING_POINT_OF_DIMINISHING_RETURNS = 1700;
-const SCORING_MEDIAN = 10000;
+const scoreOptions = require('../config/constants').defaultAuditOptions['first-interactive'];
 
 class PredictivePerf extends Audit {
   /**
@@ -56,8 +52,8 @@ class PredictivePerf extends Audit {
 
     const score = Audit.computeLogNormalScore(
       values.roughEstimateOfTTCI,
-      SCORING_POINT_OF_DIMINISHING_RETURNS,
-      SCORING_MEDIAN
+      scoreOptions.scorePODR,
+      scoreOptions.scoreMedian
     );
 
     return {

@@ -5,12 +5,12 @@
  */
 'use strict';
 
-const constants = require('./constants');
+const {defaultSettings, defaultAuditOptions: auditOptions} = require('./constants');
 
 /* eslint-disable max-len */
 
 module.exports = {
-  settings: constants.defaultSettings,
+  settings: defaultSettings,
   passes: [{
     passName: 'defaultPass',
     recordTrace: true,
@@ -75,15 +75,15 @@ module.exports = {
     'works-offline',
     'viewport',
     'without-javascript',
-    'first-meaningful-paint',
+    {path: 'first-meaningful-paint', options: auditOptions['first-meaningful-paint']},
     'load-fast-enough-for-pwa',
-    'speed-index-metric',
+    {path: 'speed-index-metric', options: auditOptions['speed-index-metric']},
     'screenshot-thumbnails',
-    'estimated-input-latency',
+    {path: 'estimated-input-latency', options: auditOptions['estimated-input-latency']},
     'errors-in-console',
     'time-to-first-byte',
-    'first-interactive',
-    'consistently-interactive',
+    {path: 'first-interactive', options: auditOptions['first-interactive']},
+    {path: 'consistently-interactive', options: auditOptions['consistently-interactive']},
     'user-timings',
     'critical-request-chains',
     'redirects',
@@ -94,8 +94,8 @@ module.exports = {
     'content-width',
     'image-aspect-ratio',
     'deprecations',
-    'mainthread-work-breakdown',
-    'bootup-time',
+    {path: 'mainthread-work-breakdown', options: auditOptions['mainthread-work-breakdown']},
+    {path: 'bootup-time', options: auditOptions['bootup-time']},
     'uses-rel-preload',
     'font-display',
     'network-requests',
@@ -147,8 +147,8 @@ module.exports = {
     'accessibility/manual/offscreen-content-hidden',
     'accessibility/manual/use-landmarks',
     'accessibility/manual/visual-order-follows-dom',
-    'byte-efficiency/uses-long-cache-ttl',
-    'byte-efficiency/total-byte-weight',
+    {path: 'byte-efficiency/uses-long-cache-ttl', options: auditOptions['uses-long-cache-ttl']},
+    {path: 'byte-efficiency/total-byte-weight', options: auditOptions['total-byte-weight']},
     'byte-efficiency/offscreen-images',
     'byte-efficiency/unminified-css',
     'byte-efficiency/unminified-javascript',
@@ -158,7 +158,7 @@ module.exports = {
     'byte-efficiency/uses-text-compression',
     'byte-efficiency/uses-responsive-images',
     'dobetterweb/appcache-manifest',
-    'dobetterweb/dom-size',
+    {path: 'dobetterweb/dom-size', options: auditOptions['dom-size']},
     'dobetterweb/external-anchors-use-rel-noopener',
     'dobetterweb/geolocation-on-start',
     'dobetterweb/link-blocking-first-paint',
